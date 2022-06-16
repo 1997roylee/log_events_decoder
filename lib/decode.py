@@ -11,8 +11,8 @@ class TransferDecoder():
         self._decode(transfer)
 
     def _decode(self, transfer):
-        self.contract_address = transfer.get('address')
-        self.transaction_hash = transfer.get('transactionHash')
+        self.contract_address = transfer.get('sender_address')
+        self.transaction_hash = transfer.get('tx_hash')
         self.block_number = transfer.get('blockNumber')
         self.block_hash = transfer.get('blockHash')
         self.taker = transfer.get('taker')

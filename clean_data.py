@@ -2,7 +2,7 @@ import gzip
 from functools import reduce
 import os
 import json
-from lib import TransactionDecoder, LogEventDecoder
+from lib import TransactionDecoder, LogEventDecoder, TransferDecoder
 from pandas import DataFrame, concat
 
 ADDRESS = "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
@@ -39,5 +39,8 @@ cleaned_log_events = sum(cleaned_log_events, [])
 
 df = LogEventDecoder.to_data_frame(cleaned_log_events)
 
+for index, row in df.nft_transfers().iterrows():
+        decoder = TransferDecoder(row)
+        print("%s -> %s, token_id: %s, price: %s %s, tx_hash: %s" % (decoder.from_address,
+            decoder.to_address, str(decoder.token_id), str(decoder.price), decoder.currency, decoder.transaction_hash))
 
-print(df.sales())
