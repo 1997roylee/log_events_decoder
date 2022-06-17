@@ -10,6 +10,21 @@ class TransferDecoder():
     def __init__(self, transfer):
         self._decode(transfer)
 
+    def to_json(self):
+        return {
+            "contract_address": self.contract_address,
+            "transaction_hash": self.transaction_hash,
+            "block_number": self.block_number,
+            "block_hash": self.block_hash,
+            "taker": self.taker,
+            "maker": self.maker,
+            "from_address": self.from_address,
+            "to_address": self.to_address,
+            "currency": self.currency,
+            "price": self.price,
+            "token_id": self.token_id
+        }
+
     def _decode(self, transfer):
         self.contract_address = transfer.get('sender_address')
         self.transaction_hash = transfer.get('tx_hash')

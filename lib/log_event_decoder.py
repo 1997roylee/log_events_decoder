@@ -4,10 +4,6 @@ EVENT_SIGNATURE_HASH = [
     "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
 ]
 
-# SALE_SIGNATURE_HASH = [
-#     "0xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9",
-#     # "0x9d9af8e38d66c62e2c12f0225249fd9d721c54b83f48d9352c97c6cacdcb6f31"
-# ]
 
 SALE_SIGNATURE_HASH_DICT = {
     "0xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9": "OrdersMatchedSig",
@@ -19,10 +15,12 @@ from .extract_sales import ExtractOpenseaSales, ExtractOpenseaSeaportSales
 class DataFrameDecoder():
     def __init__(self, df):
         self.df = df
-        self.sales_df = ExtractOpenseaSales(self.df.loc[self.df["action"] == "OrdersMatchedSig"]).get_sales()
-        self.sales_df += ExtractOpenseaSeaportSales(self.df.loc[self.df["action"] == "0xfb0f3ee1"]).get_sales()
+        af = ExtractOpenseaSales(df.loc[df["action"] == "OrdersMatchedSig"]).get_sales()
+        bf = ExtractOpenseaSeaportSales(self.df.loc[self.df["action"] == "0xfb0f3ee1"]).get_sales()
+        self.sales_df = concat([i for i in [af, bf] if not i.empty])
+        print(self.sales_df[['maker', 'taker']])
         self.transfers_df = self.df.loc[self.df["action"] == "Transfer"]
-        print(self.sales_df)
+        
         
     def nft_transfers(self):
         transfers_df = self.transfers_df
@@ -33,6 +31,8 @@ class DataFrameDecoder():
         nft_transfers_df = nft_transfers_df.merge(self.non_nft_transfers(), left_on=[
                                             'from', 'to', 'tx_hash'], right_on=['receiver', 'sender', 'tx_hash'], how='left')
         nft_transfers_df = nft_transfers_df.merge(self.sales_df, left_on=['from', 'to', 'tx_hash'], right_on=['maker', 'taker', 'tx_hash'], how='left')
+        # print(nft_transfers_df[['from', 'to', 'tx_hash']])
+        # print(self.sales_df[['maker', 'taker', 'tx_hash']])
         return nft_transfers_df
 
     def non_nft_transfers(self):
@@ -90,7 +90,7 @@ class LogEventDecoder():
             "sender_address": self.sender_address,
             "action": self.action,
             "raw_log_data": self.raw_log_data,
-            "tx_hash": self.tx_hash,
+            "tx_hash": self.tx_hash
         }
 
     @classmethod

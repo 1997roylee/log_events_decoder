@@ -1,4 +1,4 @@
-from pandas import concat
+from pandas import concat, DataFrame
 
 class ExtractOpenseaSales:
     def __init__(self, df):
@@ -11,18 +11,19 @@ class ExtractOpenseaSales:
         """
         """
         # Get the sales from Opensea
+        if self.df.empty:
+            return self.df
+
         sales_df = self.get_sales_df()
         revert_sales_df = self.revert_sales_df(sales_df)
         sales = self.merge_sales(sales_df, revert_sales_df)
-
-        # Return the sales
         return sales
 
     def merge_sales(self, sales, sales_db):
         """
         Merge the sales
         """
-        return concat([sales, sales_db])
+        return concat([sales, sales_db]) 
     
     def get_sales_df(self):
         """

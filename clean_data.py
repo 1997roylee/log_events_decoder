@@ -39,8 +39,11 @@ cleaned_log_events = sum(cleaned_log_events, [])
 
 df = LogEventDecoder.to_data_frame(cleaned_log_events)
 
-for index, row in df.nft_transfers().iterrows():
+arr = []
+with gzip.open("output/{}".format("1.json.gz"), 'w') as f:
+    for index, row in df.nft_transfers().iterrows():
         decoder = TransferDecoder(row)
         print("%s -> %s, token_id: %s, price: %s %s, tx_hash: %s" % (decoder.from_address,
-            decoder.to_address, str(decoder.token_id), str(decoder.price), decoder.currency, decoder.transaction_hash))
-
+                                                                    decoder.to_address, str(decoder.token_id), str(decoder.price), decoder.currency, decoder.transaction_hash))
+        arr.append(decoder.to_json())
+    f.write(json.dumps(arr).encode('utf-8'))
