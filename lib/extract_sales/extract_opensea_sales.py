@@ -1,4 +1,4 @@
-from pandas import concat, DataFrame
+from pandas import concat
 
 class ExtractOpenseaSales:
     def __init__(self, df):

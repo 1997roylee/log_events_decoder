@@ -4,7 +4,7 @@ from pandas import concat
 APE_COLLECTION = ["0xe6d48bf4ee912235398b96e16db6f310c21e82cb"]
 
 
-class ExtractOpenseaSeaportSales:
+class OpenseaSeaportSaleExtractor(object):
     def __init__(self, df):
         """
         """
@@ -18,12 +18,12 @@ class ExtractOpenseaSeaportSales:
         if self.df.empty:
             return self.df
 
-        sales_df = self.get_sales_df()
-        revert_sales_df = self.revert_sales_df(sales_df)
-        sales_df = self.merge_sales(sales_df, revert_sales_df)
+        sales_df = self._get_sales_df()
+        revert_sales_df = self._revert_sales_df(sales_df)
+        sales_df = self._merge_sales(sales_df, revert_sales_df)
         return sales_df
 
-    def merge_sales(self, af, bf):
+    def _merge_sales(self, af, bf):
         return concat([af, bf])
 
     def _split_raw_data(self, raw_data, n=64):
@@ -55,21 +55,20 @@ class ExtractOpenseaSeaportSales:
             del groups[index]
         return sum(map(lambda x: int(x[2], 16) if len(x) > 0 else 0, groups))
 
-    def get_sales_df(self):
+    def _get_sales_df(self):
         """
         """
         #
-        sales_df = self.df
+        sales_df = self.df.copy()
         sales_df['taker'] = sales_df['raw_log_data'].apply(
             lambda x: self._extract_from_address(x))
-
         sales_df['revert'] = False
         sales_df['price'] = sales_df['raw_log_data'].apply(
             lambda x: self._extract_price(x))
         sales_df['maker'] = sales_df['topics'].str.get(1)
-        return sales_df[['maker', 'taker', 'price', 'revert', 'tx_hash']]
+        return sales_df[['maker', 'taker', 'price', 'revert', 'transaction_hash']]
 
-    def revert_sales_df(self, sales_df):
+    def _revert_sales_df(self, sales_df):
         """
         """
         #
